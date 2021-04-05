@@ -2,6 +2,8 @@ package br.com.nicemc.api.builder.item
 
 import com.comphenix.protocol.wrappers.WrappedGameProfile
 import com.comphenix.protocol.wrappers.WrappedSignedProperty
+import com.mojang.authlib.GameProfile
+import com.mojang.authlib.properties.Property
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
 import org.bukkit.inventory.ItemFlag
@@ -40,13 +42,13 @@ class SkullBuilder(
     fun owner(offlinePlayer: OfflinePlayer) = changeMeta { it.owner = offlinePlayer.name }
 
     fun textures(textures: String) = changeMeta {
-        val profile = WrappedGameProfile(UUID.randomUUID(), null)
+        val profile = GameProfile(UUID.randomUUID(), null)
         val propertyMap = profile.properties
         if (propertyMap != null) {
             val encodedData: ByteArray = Base64.getEncoder().encode(
                 String.format("{textures:{SKIN:{url:\"%s\"}}}", textures).toByteArray()
             )
-            propertyMap.put("textures", WrappedSignedProperty("textures", String(encodedData), null))
+            propertyMap.put("textures", Property("textures", String(encodedData)))
 
             try {
                 val field: Field = it.javaClass.getDeclaredField("profile")
@@ -62,7 +64,7 @@ class SkullBuilder(
 
     fun name(displayName: String): SkullBuilder = changeMeta { it.displayName = displayName }
 
-    fun amount(amount: Int): SkullBuilder = changeItem() { it.amount = amount }
+    fun amount(amount: Int): SkullBuilder = changeItem { it.amount = amount }
 
     fun lore(lore: List<String>): SkullBuilder {
         return changeMeta { it.lore = lore }
